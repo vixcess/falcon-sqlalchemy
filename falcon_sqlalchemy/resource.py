@@ -1,31 +1,25 @@
 import falcon
-import rethinkdb as r
 from falcon import Request, Response
+
+from sqlalchemy import create_engine
 
 from . import hooks
 from .types import JSONType
-from .util import RethinkDBMixin, parse_rethinkdb_url
+from .util import SQLAlchemyMixin
 
 
 def put_json_to_context(req: Request, item: JSONType, key="result"):
     req.context[key] = item
 
 
-class _RethinkDBResource(RethinkDBMixin):
+class _SQLResource(SQLAlchemyMixin):
     schema = None
 
-    def __init__(self, conf_or_url):
-        # check if tablename is defines
-        if self._table_name is None:
-            raise ValueError("table name not defined")
+    def __init__(self, sqlurl):
+        super().__init__()
 
-        if isinstance(conf_or_url, str):
-            self._rethinkdb_conf = parse_rethinkdb_url(conf_or_url)
-        else:
-            self._rethinkdb_conf = conf_or_url
-
-    def get_conn(self) -> r.Connection:
-        return r.connect(**self._rethinkdb_conf)
+        self._sqlurl = sqlurl
+        self._engine = create_engine(sqlurl)
 
     @property
     def conn(self):
