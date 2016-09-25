@@ -1,8 +1,10 @@
+from datetime import datetime
 from typing import List, Optional
 import uuid
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, BigInteger, String, DateTime
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.sql import functions as sqlfunc
 
 from .types import IDType, ItemType
 
@@ -37,11 +39,22 @@ class AutoCloseSessionMaker(sessionmaker):
 
 
 class IntegerPrimaryKeyMixin(object):
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
 
 
 class StringPrimaryKeyMixin(object):
     id = Column(String(64), primary_key=True, default=_uuid)
+
+
+class CreatedAtMixin(object):
+    created_at = Column(DateTime, nullable=False,
+                        server_default=sqlfunc.now())
+
+
+class UpdatedAtMixin(object):
+    updated_at = Column(DateTime, nullable=False,
+                        server_default=sqlfunc.now(),
+                        onupdate=sqlfunc.now())
 
 
 class DictableMixin(object):
