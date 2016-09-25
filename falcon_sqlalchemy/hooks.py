@@ -4,6 +4,8 @@ import falcon
 import jsonschema
 from jsonschema.exceptions import ValidationError
 
+from .jsonencoder import encoder as default_encoder
+
 
 def require_json(req, resp, resource, params):
     if req.method in ('POST', 'PUT', 'PATCH'):
@@ -54,7 +56,7 @@ def dump_json(req, resp, resource):
     if 'result' not in req.context:
         return
 
-    json_encoder = None
     if hasattr(resource, "json_encoder"):
-        json_encoder = resource.json_encoder
-    resp.body = json.dumps(req.context['result'], cls=json_encoder)
+        resp.body = json.dumps(req.context['result'], cls=resource.json_encoder)
+    else:
+        resp.body = default_encoder.dumps(req.context['result'])
