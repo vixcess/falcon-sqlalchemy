@@ -2,3 +2,4 @@ falcon
 sqlalchemy
 jsonschema
 toolz
+chainson

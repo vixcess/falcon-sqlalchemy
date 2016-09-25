@@ -6,14 +6,14 @@ from sqlalchemy.ext.declarative import declarative_base
 
 import falcon
 from falcon_sqlalchemy import SQLRootResource, SQLItemResource
-from falcon_sqlalchemy.util import IntegerPrimaryKeyMixin, StringPrimaryKeyMixin, DictableMixin
+from falcon_sqlalchemy.util import IntegerPrimaryKeyMixin, StringPrimaryKeyMixin, DictableMixin, UpdatedAtMixin
 
-# sqlurl = "mysql+pymysql://root:test@127.0.0.1:3306/testdb?charset=utf8mb4"
-sqlurl = "postgresql://root:test@127.0.0.1:5432/test"
+sqlurl = "mysql+pymysql://root:test@127.0.0.1:3306/testdb?charset=utf8mb4"
+# sqlurl = "postgresql://root:test@127.0.0.1:5432/test"
 Base = declarative_base()
 
 
-class User(Base, IntegerPrimaryKeyMixin, DictableMixin):
+class User(Base, IntegerPrimaryKeyMixin, DictableMixin, UpdatedAtMixin):
     __tablename__ = "user"
     name = Column(String(64), unique=True)
     age = Column(Integer)
@@ -42,6 +42,7 @@ class User2ItemHandler(SQLItemResource):
 
 
 engine = create_engine(sqlurl)
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 api = falcon.API()
