@@ -30,7 +30,7 @@ class SQLRootResource(_SQLResource):
     def on_get(self, req: Request, res: Response):
         with self.make_session() as session:
             items = self.list_items(session=session)
-            put_json_to_context(req, items)
+            put_json_to_context(req, [item.to_dict() for item in items])
 
     @falcon.before(hooks.require_json)
     @falcon.before(hooks.parse_json)
@@ -51,7 +51,7 @@ class SQLItemResource(_SQLResource):
             item = self.get_item(item_id, session)
             if item is None:
                 raise falcon.HTTPNotFound()
-            put_json_to_context(req, item)
+            put_json_to_context(req, item.to_dict())
 
     @falcon.before(hooks.require_json)
     @falcon.before(hooks.parse_json)

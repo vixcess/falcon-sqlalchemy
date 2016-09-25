@@ -1,9 +1,14 @@
 from typing import List, Optional
+import uuid
 
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import Session, sessionmaker
 
 from .types import IDType, ItemType
+
+
+def _uuid():
+    return str(uuid.uuid4())
 
 
 class AutoCloseSession(Session):
@@ -31,8 +36,17 @@ class AutoCloseSessionMaker(sessionmaker):
         return s
 
 
-class PrimaryKeyMixin(object):
+class IntegerPrimaryKeyMixin(object):
     id = Column(Integer, primary_key=True)
+
+
+class StringPrimaryKeyMixin(object):
+    id = Column(String(64), primary_key=True, default=_uuid)
+
+
+class DictableMixin(object):
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class SQLAlchemyMixin(object):
@@ -45,16 +59,17 @@ class SQLAlchemyMixin(object):
     def get_table(self, session: Session):
         return session.query(self.model)
 
-    def list_items(self, n_items=100, session: Session = None) -> List[ItemType]:
+    def list_items(self, n_items=100, session: Session = None) -> List[DictableMixin]:
         return self.get_table(session).limit(n_items).all()
 
-    def get_item(self, item_id: IDType, session: Session) -> Optional[ItemType]:
+    def get_item(self, item_id: IDType, session: Session) -> Optional[DictableMixin]:
         return self.get_table(session).get(item_id)
 
     def post_item(self, item: ItemType, session: Session) -> IDType:
-        session.add(self.model(**item))
+        item = self.model(**item)
+        session.add(item)
         session.commit()
-        return self.model.id
+        return item.id
 
     def put_item(self, item_id: IDType, item: ItemType, session: Session) -> IDType:
         session.merge(self.model(id=item_id, **item))
