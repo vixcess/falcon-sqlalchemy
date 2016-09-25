@@ -1,8 +1,34 @@
-from sqlalchemy import Column, Integer
-from sqlalchemy.orm import Session
 from typing import List, Optional
 
+from sqlalchemy import Column, Integer
+from sqlalchemy.orm import Session, sessionmaker
+
 from .types import IDType, ItemType
+
+
+class AutoCloseSession(Session):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        try:
+            if self.is_active:
+                self.commit()
+        except Exception as e:
+            self.rollback()
+            raise e
+        finally:
+            self.close()
+
+
+class AutoCloseSessionMaker(sessionmaker):
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.class_ = AutoCloseSession
+
+    def __call__(self, **local_kw) -> AutoCloseSession:
+        s = super().__call__(**local_kw)
+        return s
 
 
 class PrimaryKeyMixin(object):
