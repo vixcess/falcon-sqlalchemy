@@ -1,6 +1,8 @@
+from typing import Union
+
 import falcon
 from falcon import Request, Response
-from sqlalchemy import create_engine
+from sqlalchemy.engine import create_engine, Engine
 from sqlalchemy.exc import IntegrityError
 
 from . import hooks
@@ -15,10 +17,18 @@ def put_json_to_context(req: Request, item: JSONType, key="result"):
 class _SQLResource(SQLAlchemyMixin):
     schema = None
 
-    def __init__(self, sqlurl, **kwargs):
+    def __init__(self, sqlurl_or_engine: Union[str, Engine], **kwargs):
         super().__init__()
-        self._sqlurl = sqlurl
-        self._engine = create_engine(sqlurl)
+        if isinstance(sqlurl_or_engine, str):
+            self._sqlurl = sqlurl_or_engine
+            self._engine = create_engine(sqlurl_or_engine)
+        elif isinstance(sqlurl_or_engine, Engine):
+            self._engine = sqlurl_or_engine
+            self._sqlurl = self._engine.url
+        self._session_maker = AutoCloseSessionMaker(bind=self._engine, **kwargs)
+
+    def set_engine(self, engine: Engine, **kwargs):
+        self._engine = engine
         self._session_maker = AutoCloseSessionMaker(bind=self._engine, **kwargs)
 
     def make_session(self, **kwds):
