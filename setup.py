@@ -13,7 +13,7 @@ if sys.version_info.minor == 4:
 
 setup(
     name='falcon_sqlalchemy',
-    version="0.2.1",
+    version="0.2.2",
     packages=['falcon_sqlalchemy'],
     url='https://github.com/vixcess/falcon-sqlalchemy',
     license='Apache License version 2',
