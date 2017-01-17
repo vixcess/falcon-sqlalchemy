@@ -2,4 +2,4 @@ falcon
 sqlalchemy
 jsonschema
 toolz
-chainson
+chainson >= 0.2

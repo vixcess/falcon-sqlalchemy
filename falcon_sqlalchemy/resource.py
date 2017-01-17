@@ -87,6 +87,9 @@ class SQLItemResource(_SQLResource):
 
     def on_delete(self, req: Request, res: Response, item_id):
         with self.make_session() as session:
-            ok = self.delete_item(item_id, session)
-            if not ok:
-                raise falcon.HTTPNotFound()
+            try:
+                ok = self.delete_item(item_id, session)
+                if not ok:
+                    raise falcon.HTTPNotFound()
+            except IntegrityError as e:
+                raise falcon.HTTPConflict("Conflict", str(e))
