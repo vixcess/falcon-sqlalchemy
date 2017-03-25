@@ -53,10 +53,10 @@ def validate_json(req, resp, resource, params):
 
 
 def dump_json(req, resp, resource):
-    if 'result' not in req.context:
+    if 'result' not in resp.context:
         return
 
     if hasattr(resource, "json_encoder"):
-        resp.body = json.dumps(req.context['result'], cls=resource.json_encoder)
+        resp.body = json.dumps(resp.context['result'], cls=resource.json_encoder)
     else:
-        resp.body = default_encoder.dumps(req.context['result'])
+        resp.body = default_encoder.dumps(resp.context['result'])

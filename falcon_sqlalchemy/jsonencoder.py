@@ -23,6 +23,6 @@ class SQLAlchemyEncoder(AbstractJSONEncoderWithChecker):
 
 encoder = (
     JSONEncoderChain()
-        .add_encoder(SQLAlchemyEncoder())
-        .add_encoder(UTCDateTimeJSONEncoder())
+    .add_encoder(SQLAlchemyEncoder())
+    .add_encoder(UTCDateTimeJSONEncoder())
 )

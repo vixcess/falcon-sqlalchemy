@@ -10,8 +10,8 @@ from .types import JSONType
 from .util import SQLAlchemyMixin, AutoCloseSessionMaker
 
 
-def put_json_to_context(req: Request, item: JSONType, key="result"):
-    req.context[key] = item
+def put_json_to_context(res: Response, item: JSONType, key="result"):
+    res.context[key] = item
 
 
 class _SQLResource(SQLAlchemyMixin):
@@ -40,7 +40,7 @@ class SQLRootResource(_SQLResource):
     def on_get(self, req: Request, res: Response):
         with self.make_session() as session:
             items = self.list_items(session=session)
-            put_json_to_context(req, [item.to_dict() for item in items])
+            put_json_to_context(res, [item.to_dict() for item in items])
 
     @falcon.before(hooks.require_json)
     @falcon.before(hooks.parse_json)
@@ -49,7 +49,7 @@ class SQLRootResource(_SQLResource):
         with self.make_session() as session:
             try:
                 item_id = self.post_item(req.context["doc"], session)
-                put_json_to_context(req, {"created": item_id})
+                put_json_to_context(res, {"created": item_id})
             except IntegrityError as e:
                 raise falcon.HTTPConflict("Conflict", str(e))
 
@@ -61,7 +61,7 @@ class SQLItemResource(_SQLResource):
             item = self.get_item(item_id, session)
             if item is None:
                 raise falcon.HTTPNotFound()
-            put_json_to_context(req, item.to_dict())
+            put_json_to_context(res, item.to_dict())
 
     @falcon.before(hooks.require_json)
     @falcon.before(hooks.parse_json)
@@ -70,7 +70,7 @@ class SQLItemResource(_SQLResource):
         with self.make_session() as session:
             try:
                 self.put_item(item_id, req.context["doc"], session)
-                put_json_to_context(req, {"created": item_id})
+                put_json_to_context(res, {"created": item_id})
             except IntegrityError as e:
                 raise falcon.HTTPConflict("Conflict", str(e))
 
