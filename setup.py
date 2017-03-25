@@ -13,7 +13,7 @@ if sys.version_info.minor == 4:
 
 setup(
     name='falcon_sqlalchemy',
-    version="0.2.2",
+    version="0.3",
     packages=['falcon_sqlalchemy'],
     url='https://github.com/vixcess/falcon-sqlalchemy',
     license='Apache License version 2',
@@ -24,6 +24,7 @@ setup(
     long_description=open('README.md').read(),
     classifiers=[
         'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5'
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6'
     ]
 )
